@@ -9,8 +9,14 @@ const port = process.env.PORT || 5000;
 
 // Configure CORS
 const corsOptions = {
-  origin: 'http://localhost:5173', 
-  credentials: true, // Allow credentials (cookies, authorization headers, TLS client certificates)
+  origin:[
+          'http://localhost:5173',
+          'b9a11-assignment-748f9.web.app',
+          'b9a11-assignment-748f9.firebaseapp.com',
+          
+  ],
+  Credential:true,
+  optionalSuccessStatus:200,
 };
 
 // Middleware
