@@ -7,6 +7,8 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
+
+
 // Configure CORS
 const corsOptions = {
   origin:[
@@ -44,6 +46,13 @@ const verifyJWT = (req, res, next) => {
 };
 
 
+const cookeOption = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+}
+
+
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.unskf0z.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -67,11 +76,7 @@ async function run() {
         expiresIn: '365d'
       });
 
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-      })
+      res.cookie('token', token, cookeOption )
       .send({ success: true });
     });
 
