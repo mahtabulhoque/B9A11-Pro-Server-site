@@ -3,26 +3,13 @@ const cors = require('cors');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 5000;
 
-
-
-
-// middleware
-
-// const corsOption = {
-//     origin: ['http://localhost:5173/' , 'http://localhost:5174/'],
-//     Credential:true,
-//     optionSuccessStatus: 200,
-// }
-
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-console.log(process.env.DB_PASSWORD);
-
-
-
+// MongoDB connection URI
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.unskf0z.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -36,80 +23,74 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
 
-    const jobsCollection = client.db('mahach0396').collection('jobs')
-   
+    const jobsCollection = client.db('mahach0396').collection('jobs');
 
-    // get all jobs
-
+    // Get all jobs
     app.get("/jobs", async (req, res) => {
-        const result = await jobsCollection.find({}).toArray()
+      const result = await jobsCollection.find({}).toArray();
+      res.send(result);
+    });
 
-        res.send(result)
-    })
-
-    // get single data
-
-    app.get('/job/:id', async (req, res) =>{
-       const id = req.params.id
-       const query = {_id : new ObjectId(id)}
-       const result = await jobsCollection.findOne(query)
-       res.send(result)
-    })
-
-    // my job data
-
-
-    app.get('/jobs', async(req,res) =>{
-      try{
-        const Email = req.query.userEmail;
-        // console.log(Email);
-        const query = {userEmail:Email};
-        const myJobsByEmail = await jobsCollection.find(query).toArray();
-        res.json(myJobsByEmail)
-      }catch (error){
-        console.log('Error fatching data', error);
-        res.status(500).json({error:'Internal server error'})
+    // Get single job by ID
+    app.get('/job/:id', async (req, res) => {
+      const id = req.params.id;
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).send('Invalid ID format');
       }
+      const query = { _id: new ObjectId(id) };
+      const result = await jobsCollection.findOne(query);
+      res.send(result);
+    });
+
+// Get jobs by user email
+app.get('/jobs', async (req, res) => {
+  try {
+    const email = req.query.userEmail;
+    if (!email) {
+      return res.status(400).json({ error: 'User email is required' });
     }
-  )
+    const query = { userEmail: email };
+    const myJobsByEmail = await jobsCollection.find(query).toArray();
+    res.json(myJobsByEmail);
+  } catch (error) {
+    console.log('Error fetching data', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 
+    // Add job
+    app.post('/addJobs', async (req, res) => {
+      const addData = req.body;
+      const result = await jobsCollection.insertOne(addData);
+      res.send(result);
+    });
 
-    // add data saving 
+    // Increment applicants number
+    app.post('/applyJob/:id', async (req, res) => {
+      const id = req.params.id;
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).send('Invalid ID format');
+      }
+      const query = { _id: new ObjectId(id) };
+      const update = { $inc: { applicantsNumber: 1 } };
+      const result = await jobsCollection.updateOne(query, update);
+      res.send(result);
+    });
 
-
-    app.post('/addJobs', async(req, res) =>{
-      const addData = req.body
-      const result = await jobsCollection.insertOne(addData)
-      console.log(result);
-      res.send(result)
-    })
-
-
-
-
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    console.log("Connected to MongoDB!");
   } finally {
-    
-
+    // Ensure client will close when you finish/error
   }
 }
 run().catch(console.dir);
 
-
-
-
-
-
-
-app.get('/', (req,res) => {
-    res.send('B9A11 assignment is running')
-})
+app.get('/', (req, res) => {
+  res.send('B9A11 assignment is running');
+});
 
 app.listen(port, () => {
-    console.log(`B9A11 Server is running on port:${port}`);
-})
+  console.log(`B9A11 Server is running on port:${port}`);
+});
