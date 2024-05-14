@@ -91,6 +91,18 @@ async function run() {
 
 
 
+    app.put('/updateJob/:id', async (req, res) => {
+      const id = req.params.id;
+      const updateData = req.body;
+      const result = await jobsCollection.updateOne(
+        { _id:new ObjectId(id) },
+        { $set: updateData }
+      );
+      res.send(result);
+    });
+
+
+
     // Increment applicants number
     app.post('/applyJob/:id', async (req, res) => {
       const id = req.params.id;
