@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 
 // Configure CORS
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5174','https://b9a11-assignment-748f9.web.appc'],
+  origin: ['http://localhost:5173', 'http://localhost:5174','https://b9a11-assignment-748f9.web.app'],
   credentials: true,
   optionSuccessStatus: 200,
 }
