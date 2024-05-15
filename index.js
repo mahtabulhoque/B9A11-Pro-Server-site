@@ -11,15 +11,11 @@ const port = process.env.PORT || 5000;
 
 // Configure CORS
 const corsOptions = {
-  origin:[
-          'http://localhost:5173',
-          'b9a11-assignment-748f9.web.app',
-          'b9a11-assignment-748f9.firebaseapp.com',
-          
-  ],
-  Credential:true,
-  optionalSuccessStatus:200,
-};
+  origin: ['http://localhost:5173', 'http://localhost:5174','***'],
+  credentials: true,
+  optionSuccessStatus: 200,
+}
+app.use(cors(corsOptions))
 
 // Middleware
 app.use(cors(corsOptions));
@@ -66,7 +62,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
     const jobsCollection = client.db('mahach0396').collection('jobs');
 
     // jwt generate
